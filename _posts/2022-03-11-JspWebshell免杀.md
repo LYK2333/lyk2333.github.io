@@ -30,7 +30,7 @@ tags:
 
 对于这部分处理逻辑其实是由`org.apache.jasper.compiler.ParserController#determineSyntaxAndEncoding`做处理，在这个类方法当中有两个比较重要的属性`isXml`与`sourceEnc`，字面理解就能得出一个判定是否jsp格式是通过xml格式编写，另一个`sourceEnc`也就决定着jsp文件的编码相关
 
-#### 关于xml格式的一些简单说明
+#### 一、关于xml格式的一些简单说明
 
 ##### xml声明
 
@@ -52,7 +52,7 @@ tomcat对于xml格式还算比较严格，其中如果需要用到xml声明`<?xm
 
 如果后缀名不符合则根据文本内容是否包含有形如`<xxx:root`格式的文本，如果有也会识别为一个xml格式
 
-#### 如何决定一个文件的编码
+#### 二、如何决定一个文件的编码
 
 ##### 如何从字节顺序标记(BOM)判断文本内容编码
 
