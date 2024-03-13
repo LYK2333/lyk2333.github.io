@@ -1273,7 +1273,7 @@ public class ByteCodeEvil {
 讲两个免杀，一个是动态写入文件，一个是websocket
 其实动态写入比较简单，会有痕迹，不管以反序列化，还是上传，或者是通过Invoke方法调用该类，都会动态的在项目里面生成一个临时的jsp文件
 
-```java
+```jsp
 <%@ page import="java.nio.file.Files" %>
 <%@ page import="java.nio.file.Paths" %>
 <%@ page import="java.net.URLClassLoader" %>
@@ -1298,7 +1298,7 @@ public class ByteCodeEvil {
 
 第二个是关于websocket的，先贴源码
 
-```java
+```jsp
 <%@ page import="javax.websocket.server.ServerEndpointConfig" %>
 <%@ page import="javax.websocket.server.ServerContainer" %>
 <%@ page import="javax.websocket.*" %>
