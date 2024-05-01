@@ -175,8 +175,7 @@ After we generate the tar and upload `small.zip`, we see a directory header in `
 ![small-zip-directory](..\img\small-zip-directory.png).
 
 After uploading tiny.zip we see a new directory header in the file, which looks like below.
-Again notice `50 4B 05 06` at 0x187 marking tiny.zips central directory. And then there the very "strange" 
-filename we chose this time. 
+
 
 ![tiny-zip-directory](..\img\tiny-zip-directory.png).
 
