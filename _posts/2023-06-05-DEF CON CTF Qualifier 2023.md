@@ -147,52 +147,7 @@ The CD consists of a _CD File Header_ for each file in the archive, that contain
 As mentioned above, the Zip archive does not need to end in the CD. The standard allows for a _File comment_ of length up to 65535 bytes after the CD, which can contain arbitrary data.
 (Flags for example).
 
-### 0x04 Zip! Y u so nasty??? 
 
-The keen reader might have observed that the format allows for some nasty ambiguities: Some header fields, like `crc-32` and `compression` are in the directory header AND member header, so which one takes precedence? 
-We checked the go implementation. It seems like it will always use the value in the directory header for all fields that are interesting to us. So here we go: Overwrite the metadata in the central directory to go straight to the flag! Easy! Right? No.
-
-The trouble is that we can not control the zip metadata that `compress_files` will write. It will just 
-open the provided archive and copy the members into a new zip archive with defaults for compression, 
-a proper crc, etc. In addition: The `download` function gives us an empty file if the go zip reader 
-encounters anything it doesn't like, for example invalid checksums or data that doesn't properly decompress. 
-
-But truth be told, we do control one of the header fields: The member name! After a lot of head scratching our refined 
-exploit plan looks like this:
-
-1. Create a large `manyflgs.tar` with the flag inside using our InYection
-2. Write a smaller `small.zip` into the tar, so we have a zip directory header
-3. Write an even smaller `tiny.zip` into the tar, with a member name that:
-   - Contains a valid local header 
-   - Overrides the `member offset` in the CD to point to the member header mentioned above
-   - Overrides the `compression-method` and `crc` in the CD to `0` 
-   - Does not break the central directory in a way that upsets the go zip reader 
-4. Download the flag from our "crafted" zip
-
-![DefCon ctf Web Challenges](..\img\web-challenge-meme.jpg)
-
-After we generate the tar and upload `small.zip`, we see a directory header in `manyflgs.tar` that looks like this.  The long sequences of `D`, `0`, `1` and `2` are the file names we used. Notice the `50 4B 05 06` in the second to last row of bytes, those are the magic bytes used to find the central directory.
-![small-zip-directory](..\img\small-zip-directory.png).
-
-After uploading `tiny.zip` we see a new directory header in the file, which looks like below.
-Again notice `50 4B 05 06` at `0x187` marking `tiny.zip`s central directory. And then there the very "strange" 
-filename we chose this time. It starts with `{{AAA...` and has a bunch of null bytes in it. 
-Also: It overwrote some `D`s of the "old" directory.
-
-![tiny-zip-directory](..\img\tiny-zip-directory.png).
-
-Now remember that the central directory is located the **end** of a zip file. That also means that a zip reader will 
-search for the central directory end-to-start and discover the "old" magic bytes first!
-So the file will actually be interpreted like below. (No data changed, only the coloring.)
-
-![small-zip-directory-overwritten](..\img\small-zip-directory-overwritten.png).
-
-And here we have annotated the most important bits. In order to not upset the go zip reader we made use of the `extra field lenght` to "hide" `tiny.zip`s central directory footer and some leftover `D`s.
-
-![small-zip-directory-overwritten-annotated](..\img\small-zip-directory-overwritten-annotated.png)
-
-This is now a perfectly valid zip file with an uncompressed last member. That members checksum is `0` (i.e. ignored), it 
-starts at `0x159` and has size `0x0700`. Needless to say: It contains (among other bytes) the flag. :) 
 
 ### 0x06 Fix(es):
 
