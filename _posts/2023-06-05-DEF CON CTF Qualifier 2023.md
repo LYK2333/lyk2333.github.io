@@ -93,3 +93,12 @@ job:
 ```
 
 With our specially crafted `name` it turns into this:
+![Inected YAML](..\img\InYection.png)
+
+One big limitation we have here, is that we can only include "artifacts" that are inside the `/project` directory. This is again specified in the config file via the `root` setting. 
+The good news is that `flag.txt` is in this `/project` directory and that the CI job will create a `.tar` archive and a zip archive in the `/data` directory.
+Note that `.tar` doesn't have any compression.
+The bad news is that the zip archive will be created with `compress_files`, which applies the "censorship" mechanism described earlier. 
+And you might remember that the download command will always and only look at zip archives.
+
+So we have a mechanism to get the plaintext flag into a tar file in `/data`, but how do we get it out of there?
