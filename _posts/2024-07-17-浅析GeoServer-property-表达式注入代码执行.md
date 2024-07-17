@@ -48,7 +48,7 @@ org.geotools.xsd.StreamingParser.StreamingParser(Configuration, InputStream, Str
 
 首先以最简单的GetPropertyValue为例，从官方文档可以看到具体的使用方法，https://docs.geoserver.org/latest/en/user/services/wfs/reference.html#getpropertyvalue
 
-![image-20240703224128239](..\img\image-20240703224128239.png)
+![image-20240703224128239](\img\image-20240703224128239.png)
 
 我比较懒找了个之前的老环境代码方便我本地调试
 
@@ -56,23 +56,23 @@ https://versaweb.dl.sourceforge.net/project/geoserver/GeoServer/2.21.3/geoserver
 
 可以看到在`org.geoserver.wfs.GetPropertyValue#run`，红框中的代码从请求中获取了`valuereference`参数，之后调用工厂类的property方法获取`PropertyName`对象
 
-![image-20240703224938791](..\img\image-20240703224938791.png)
+![image-20240703224938791](\img\image-20240703224938791.png)
 
 我们来看看这个工厂类的调用，直接返回一个被`AttributeExpressionImpl`包装的对象
 
-![image-20240703230134192](..\img\image-20240703230134192.png)
+![image-20240703230134192](\img\image-20240703230134192.png)
 
 同时实例化时将参数赋给attPath
 
-![image-20240703230505213](..\img\image-20240703230505213.png)
+![image-20240703230505213](\img\image-20240703230505213.png)
 
 接下来再来看看evaluate的调用，在这里会通过`PropertyAccessors.findPropertyAccessors`获取合适的属性访问器，之后遍历调用其`get`方法，其中就包括了`org.geotools.data.complex.expression.FeaturePropertyAccessorFactory.FeaturePropertyAccessor#get`，官方公告列出来的就有这个
 
-![image-20240703232348317](..\img\image-20240703232348317.png)
+![image-20240703232348317](\img\image-20240703232348317.png)
 
 在下面的代码中可以解析xpath表达式，因此从上面分析下来这个xpath就是valuereference中的值，整个流程也就走通了
 
-![image-20240703233055237](..\img\image-20240703233055237.png)
+![image-20240703233055237](\img\image-20240703233055237.png)
 
 ‍
 
@@ -306,13 +306,13 @@ Operation dispatch(Request req, Service serviceDescriptor) throws Throwable {
 
 从上面的代码中我们很容易发现，通过dispatch的代码我们很容易发现会通过这个request对象查找对应的方法，获取到后之后再通过execute执行，因此答案也就有了
 
-![image-20240704000520770](..\img\image-20240704000520770.png)
+![image-20240704000520770](\img\image-20240704000520770.png)
 
 当然这个方法可以仔细看看对请求的解析部分，里面对多种请求方式的解析也可以了解了解
 
 一些具体的流程可参考如下逻辑
 
-![image-20240704103211697](..\img\image-20240704103211697.png)
+![image-20240704103211697](\img\image-20240704103211697.png)
 
 
 
@@ -328,7 +328,7 @@ PropertyName propertyNameNoIndexes = this.filterFactory.property(request.getValu
 
 依然是可以触发的
 
-![image-20240704001829248](..\img\image-20240704001829248.png)
+![image-20240704001829248](\img\image-20240704001829248.png)
 
 
 
