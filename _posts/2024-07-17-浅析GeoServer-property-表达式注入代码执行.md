@@ -44,7 +44,7 @@ org.geotools.xsd.StreamingParser.StreamingParser(Configuration, InputStream, Str
 
 再看geoserver的公告，以下这些都能被利用
 
-![image-20240703162342214](..\img\image-20240703162342214.png)
+![image-20240703162342214](\img\image-20240703162342214.png)
 
 首先以最简单的GetPropertyValue为例，从官方文档可以看到具体的使用方法，https://docs.geoserver.org/latest/en/user/services/wfs/reference.html#getpropertyvalue
 
