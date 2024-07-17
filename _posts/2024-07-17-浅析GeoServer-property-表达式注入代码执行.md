@@ -320,7 +320,7 @@ Operation dispatch(Request req, Service serviceDescriptor) throws Throwable {
 
 相比较其他利用还是觉得GetProperty的利用比较舒服，不像`GetFeature`之类的里面到处都是触发点，会导致xpath被解析很多次，当然poc就不贴了学习思路为主，在GetProperty中也有一个比较好用的对抗流量设备的点
 
-在这里可以看到在获取参数时会把`[]`中的内容替换为空，但很可惜是贪婪匹配(至少我这个老代码是这样的)，不过也可以拿来做一些利用，比如我们的`java.lang.Runtime`可以写成`java.lang.Ru[Hacked By Y4]ntime`
+在这里可以看到在获取参数时会把`[]`中的内容替换为空，但很可惜是贪婪匹配(至少我这个老代码是这样的)，不过也可以拿来做一些利用，比如我们的`java.lang.Runtime`可以写成`java.lang.Ru[Hacked]ntime`
 
 ```java
 PropertyName propertyNameNoIndexes = this.filterFactory.property(request.getValueReference().replaceAll("\\[.*\\]", ""), this.getNamespaceSupport());
