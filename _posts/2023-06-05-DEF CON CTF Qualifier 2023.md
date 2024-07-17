@@ -93,7 +93,7 @@ job:
 ```
 
 With our specially crafted `name` it turns into this:
-![Inected YAML](..\img\InYection.png)
+![Inected YAML](\img\InYection.png)
 
 One big limitation we have here, is that we can only include "artifacts" that are inside the `/project` directory. This is again specified in the config file via the `root` setting. 
 The good news is that `flag.txt` is in this `/project` directory and that the CI job will create a `.tar` archive and a zip archive in the `/data` directory.
@@ -130,7 +130,7 @@ During the CTF, we used [this documentation](https://users.cs.jmu.edu/buchhofp/f
 
 The general Zip structure looks like this:<br>
 
-![Image](..\img\general-zip-structure.png "General Zip file structure")
+![Image](\img\general-zip-structure.png "General Zip file structure")
 
 [Source](https://www.codeproject.com/KB/cs/remotezip/diagram1.png)
 
@@ -169,27 +169,27 @@ exploit plan looks like this:
    - Does not break the central directory in a way that upsets the go zip reader 
 4. Download the flag from our "crafted" zip
 
-![DefCon ctf Web Challenges](..\img\web-challenge-meme.jpg)
+![DefCon ctf Web Challenges](\img\web-challenge-meme.jpg)
 
 After we generate the tar and upload `small.zip`, we see a directory header in `manyflgs.tar` that looks like this.  The long sequences of `D`, `0`, `1` and `2` are the file names we used. Notice the `50 4B 05 06` in the second to last row of bytes, those are the magic bytes used to find the central directory.
-![small-zip-directory](..\img\small-zip-directory.png).
+![small-zip-directory](\img\small-zip-directory.png).
 
 After uploading tiny.zip we see a new directory header in the file, which looks like below.
 Again notice `50 4B 05 06` at 0x187 marking tiny.zips central directory. And then there the very "strange" 
 filename we chose this time. It starts with AAA... and has a bunch of null bytes in it. 
 Also: It overwrote some 'D's of the "old" directory.
 
-![tiny-zip-directory](..\img\tiny-zip-directory.png).
+![tiny-zip-directory](\img\tiny-zip-directory.png).
 
 Now remember that the central directory is located the **end** of a zip file. That also means that a zip reader will 
 search for the central directory end-to-start and discover the "old" magic bytes first!
 So the file will actually be interpreted like below. (No data changed, only the coloring.)
 
-![small-zip-directory-overwritten](..\img\small-zip-directory-overwritten.png).
+![small-zip-directory-overwritten](\img\small-zip-directory-overwritten.png).
 
 And here we have annotated the most important bits. In order to not upset the go zip reader we made use of the `extra field lenght` to "hide" `tiny.zip`s central directory footer and some leftover `D`s.
 
-![small-zip-directory-overwritten-annotated](..\img\small-zip-directory-overwritten-annotated.png)
+![small-zip-directory-overwritten-annotated](\img\small-zip-directory-overwritten-annotated.png)
 
 This is now a perfectly valid zip file with an uncompressed last member. That members checksum is `0` (i.e. ignored), it 
 starts at `0x159` and has size `0x0700`. Needless to say: It contains (among other bytes) the flag. :) 
