@@ -34,7 +34,7 @@ assert,system,passthru,exec,pcntl_exec,shell_exec,popen,proc_open
 
 # 0x04 利用Linux环境变量LD_PRELOAD
 
-### 初阶
+#### 初阶
 
 ```
 LD_PRELOAD是linux系统的一个环境变量，它可以影响程序的运行时的链接，它允许你定义在程序运行前优先加载的动态链接库。
@@ -116,7 +116,7 @@ mail("","","","","");
 
 web访问页面没有文件写出,可以看看定义的目录是否有权限。
 
-### 进阶版
+#### 进阶版
 
 在整个流程中,唯一担心的是sendmail没有安装怎么办,它可不是默认安装的,而拿到的webshell权限一般也不高,无法自行安装,也不能改php.ini。
 
@@ -146,13 +146,13 @@ bypass_disablefunc.php,bypass_disablefunc_x64.so或bypass_disablefunc_x86.so,byp
 - Apache 开启了 cgi, rewrite
 - Web 目录给了 AllowOverride 权限
 
-### 关于mod_cgi是什么
+#### 关于mod_cgi是什么
 
 http://httpd.apache.org/docs/current/mod/mod_cgi.html
 任何具有MIME类型application/x-httpd-cgi或者被cgi-script处理器处理的文件都将被作为CGI脚本对待并由服务器运行，它的输出将被返回给客户端。可以通过两种途径使文件成为CGI脚本，一种是文件具有已由AddType指令定义的扩展名，另一种是文件位于ScriptAlias目录中。
 当Apache 开启了cgi, rewrite时，我们可以利用.htaccess文件，临时允许一个目录可以执行cgi程序并且使得服务器将自定义的后缀解析为cgi程序，则可以在目的目录下使用.htaccess文件进行配置。
 
-### 如何利用
+#### 如何利用
 
 由于环境搭建困难,使用蚁剑的[docker](https://github.com/AntSwordProject/AntSword-Labs)
 
@@ -365,7 +365,7 @@ ls -l /
 - 编写php通过new Imagick对象的方式来处理图片等格式文件；
 - PHP >= 5.4
 
-### ImageMagick介绍
+#### ImageMagick介绍
 
 ImageMagick是一套功能强大、稳定而且开源的工具集和开发包,可以用来读、写和处理超过89种基本格式的图片文件,包括流行的TIFF、JPEG、GIF、 PNG、PDF以及PhotoCD等格式。众多的网站平台都是用他渲染处理图片。可惜在3号时被公开了一些列漏洞,其中一个漏洞可导致远程执行代码(RCE),如果你处理用户提交的图片。该漏洞是针对在野外使用此漏洞。许多图像处理插件依赖于ImageMagick库,包括但不限于PHP的imagick,Ruby的rmagick和paperclip,以及NodeJS的ImageMagick等。
 
@@ -403,7 +403,7 @@ unlink("KKKK.png");
 
 漏洞原理参考p牛文章:https://www.leavesongs.com/PENETRATION/CVE-2016-3714-ImageMagick.html
 
-### 漏洞复现
+#### 漏洞复现
 
 获取和运行镜像
 
