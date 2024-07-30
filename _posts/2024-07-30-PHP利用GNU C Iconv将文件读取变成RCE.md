@@ -2,7 +2,7 @@
 layout:     post
 title:      PHP利用GNU C Iconv将文件读取变成RCE
 subtitle:   CVE-2024-2961
-date:       2024-04-20
+date:       2024-07-30
 author:     lyk
 header-img: img/post-bg-debug.png
 catalog: true
