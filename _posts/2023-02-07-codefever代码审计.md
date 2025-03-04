@@ -12,7 +12,7 @@ tags:
 
 由于本篇也具有0day，所以之前我加密了，还请原谅，但目前漏洞已提交至官方并修复，故公开以便大伙学习交流
 
-![img](https://www.viewofthai.link/wp-content/uploads/2023/02/%E7%AC%AC%E4%B8%80%E4%B8%AA0day-300x164.png)
+![image-20250304083201231](\img\image-20250304083201231.png)
 
 
 
@@ -34,9 +34,7 @@ docker run -d --privileged=true --name codefever -p 80:80 -p 22:22 -it pgyer/cod
 
 当时审计的时候认为这里有洞
 
-![image-20230205171840632](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205171840632.png)
-
-
+![image-20250304083236680](\img\image-20250304083236680.png)
 
 但是方向其实错误了
 
@@ -48,23 +46,19 @@ docker run -d --privileged=true --name codefever -p 80:80 -p 22:22 -it pgyer/cod
 
 
 
-![image-20230205174116350](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205174116350.png)
+![image-20250304083257299](\img\image-20250304083257299.png)
 
 
 
 很快发现application的controller应该是业务核心代码，使用MVC架构的确符合大工程cms特定，同时，这里的代码是典型的跳转登录
 
-
-
-![image-20230205174318067](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205174318067.png)
+![image-20250304083320182](\img\image-20250304083320182.png)
 
 
 
 符合我们初次访问的url
 
-
-
-![image-20230205174339360](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205174339360.png)
+![image-20250304083343811](\img\image-20250304083343811.png)
 
 
 
@@ -72,17 +66,11 @@ docker run -d --privileged=true --name codefever -p 80:80 -p 22:22 -it pgyer/cod
 
 大致审计了一下登录鉴权系统，没什么硬伤，倒是md5两次明文密码再存储值得很多辣鸡cms进行学习
 
-
-
-![image-20230205174846926](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205174846926.png)
-
-
+![image-20250304083357634](\img\image-20250304083357634.png)
 
 看到登录的话会返回u_key
 
-
-
-![image-20230205175249322](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205175249322.png)
+![image-20250304083409820](\img\image-20250304083409820.png)
 
 
 
@@ -92,15 +80,11 @@ docker run -d --privileged=true --name codefever -p 80:80 -p 22:22 -it pgyer/cod
 
 创建一个仓库可以获取r_key
 
-
-
-![image-20230205180449369](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205180449369.png)
-
+![image-20250304084903501](\img\image-20250304084903501.png)
 
 
 
-
-![image-20230205180621853](https://raw.githubusercontent.com/hmt38/abcd/main//image-20230205180621853.png)
+![image-20250304084938554](\img\image-20250304084938554.png)
 
 
 
@@ -108,7 +92,7 @@ docker run -d --privileged=true --name codefever -p 80:80 -p 22:22 -it pgyer/cod
 
 
 
-![image-20230205180658225](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205180708146.png)
+![image-20250304084958420](\img\image-20250304084958420.png)
 
 
 
@@ -116,9 +100,7 @@ docker run -d --privileged=true --name codefever -p 80:80 -p 22:22 -it pgyer/cod
 
 可以注册用户。然后创建仓库。可以拿到rkey
 
-
-
-![image-20230205181349760](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205181349760.png)
+![image-20250304085015346](\img\image-20250304085015346.png)
 
 
 
@@ -132,9 +114,7 @@ docker run -d --privileged=true --name codefever -p 80:80 -p 22:22 -it pgyer/cod
 
 BlameInfo_get仍然是在respository里面的一个业务代码
 
-
-
-![image-20230205181846040](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205181846040.png)
+![image-20250304085804252](\img\image-20250304085804252.png)
 
 
 
@@ -199,7 +179,7 @@ $revision = Command::wrapArgument($revision);
 
 
 
-![image-20230205182351760](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205182351760.png)
+![image-20250304085833056](\img\image-20250304085833056.png)
 
 
 
@@ -207,7 +187,7 @@ $revision = Command::wrapArgument($revision);
 
 
 
-![image-20230205183430596](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205183430596.png)
+![image-20250304085843150](\img\image-20250304085843150.png)
 
 
 
@@ -215,15 +195,11 @@ $revision = Command::wrapArgument($revision);
 
 
 
-![image-20230205183505421](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205183505421.png)
-
-
+![image-20250304085923959](\img\image-20250304085923959.png)
 
 结果run又使用空格连接array参数
 
-
-
-![image-20230205183641982](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205183641982.png)
+![image-20250304085911378](\img\image-20250304085911378.png)
 
 
 
@@ -302,17 +278,13 @@ echo implode(' ', $command);
 
 
 
-![image-20230205192029471](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205192029471.png)
-
-
+![image-20250304090042114](\img\image-20250304090042114.png)
 
 这样应该是可以了，反引号可以不用的
 
 实战测一下
 
-
-
-![image-20230205190839084](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205190839084.png)
+![image-20250304090032898](\img\image-20250304090032898.png)
 
 
 
@@ -324,9 +296,7 @@ echo implode(' ', $command);
 
 例如
 
-
-
-![image-20230205185934729](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205185934729.png)
+![image-20250304090056885](\img\image-20250304090056885.png)
 
 
 
@@ -334,7 +304,7 @@ echo implode(' ', $command);
 
 
 
-![image-20230205190005122](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205190005122.png)
+![image-20250304090111254](\img\image-20250304090111254.png)
 
 
 
@@ -342,7 +312,7 @@ echo implode(' ', $command);
 
 
 
-![image-20230205185751474](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230205185751474.png)
+![image-20250304090121516](\img\image-20250304090121516.png)
 
 
 
@@ -352,7 +322,7 @@ echo implode(' ', $command);
 
 
 
-![image-20230206135822108](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230206135822108.png)
+![image-20250304090131413](\img\image-20250304090131413.png)
 
 
 
@@ -360,9 +330,7 @@ echo implode(' ', $command);
 
 
 
-![image-20230206135907899](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230206135907899.png)
-
-
+![image-20250304090142448](\img\image-20250304090142448.png)
 
 挖了一下execCommand，
 
@@ -468,9 +436,7 @@ echo implode(' ', $command);
 
 execCommand
 
-
-
-![image-20230206141050823](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230206141050823.png)
+![image-20250304090200902](\img\image-20250304090200902.png)
 
 
 
@@ -480,9 +446,7 @@ execCommand
 
 很快发现
 
-
-
-![image-20230206141412792](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230206141412792.png)
+![image-20250304090211302](\img\image-20250304090211302.png)
 
 
 
@@ -490,9 +454,7 @@ execCommand
 
 于是做出尝试，email保存为如下
 
-
-
-![image-20230206022016082](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230206022016082.png)
+![image-20250304090224960](\img\image-20250304090224960.png)
 
 
 
@@ -500,11 +462,7 @@ execCommand
 
 这时候请求config的时候会去调config_get,这时候发现就触发rce了。里面最终会进入到execCommand的
 
-
-
-![image-20230206021317203](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230206021317203.png)
-
-
+![image-20250304090238038](\img\image-20250304090238038.png)
 
 修复建议是规范email的形式
 
@@ -545,9 +503,7 @@ execCommand
 
 这样的话会进入到getBranchList
 
-
-
-![image-20230206141507850](https://raw.githubusercontent.com/hmt38/abcd/main/image-20230206141507850.png)
+![image-20250304090306627](\img\image-20250304090306627.png)
 
 
 
