@@ -21,11 +21,7 @@ https://mp.weixin.qq.com/s?__biz=MzI4MzcwNTAzOQ==&mid=2247529590&idx=1&sn=1c3135
 
 ProjectDiscovery 公布的利用方式受 JDK 小于 9 的限制，经过测试，这条已公开的 JNDI 利用链成功利用率为 0.6%。其中提到了关于 commons-beanutils 的利用链，经过我们的分析，实际上并不需要使用它，并且还存在其它的利用链。本文将从 ColdFusion 2023 发布版的 Update 1 安全更新内容入手，详细分析 CVE-2023-29300 的漏洞成因，并提出一些后续的研究方向。
 
-我们在 Goby 中已经集成了 CVE-2023-29300 漏洞的 JNDI 利用链（CVE-2023-38204），实现了命令执行回显和自定义 ldap 服务器地址的功能。演示效果如下：
-
-![CVE-2023-38203-yzpxexma.gif](https://cdn.nlark.com/yuque/0/2023/gif/26096065/1690540907112-4327a134-8610-45ab-9eea-f5f7785cb7ad.gif)
-
-
+我们在 Goby 中已经集成了 CVE-2023-29300 漏洞的 JNDI 利用链（CVE-2023-38204），实现了命令执行回显和自定义 ldap 服务器地址的功能。
 
 ### 0x02 漏洞环境
 
@@ -51,9 +47,7 @@ docker run -d -P vulfocus/vcpe-1.0-a-adobe-coldfusion:2023.0.0.330468-openjdk-re
 
 7 月 12 日，Adobe 发布了 ColdFusion (2023 release) Update 1 更新。
 
-将 patch 包反编译后的代码与更新前的代码进行比对，可以发现`coldfusion.wddx.DeserializerWorker#startElement()`方法中的明显变化：
-
-![图片.png](https://cdn.nlark.com/yuque/0/2023/png/26096065/1689677334778-708e6c07-dd53-44ce-bfca-a0a725fdfd64.png?x-oss-process=image%2Fformat%2Cwebp%2Fresize%2Cw_937%2Climit_0)
+将 patch 包反编译后的代码与更新前的代码进行比对，可以发现`coldfusion.wddx.DeserializerWorker#startElement()`方法中的明显变化：![image-20250306125340615](\img\image-20250306125340615.png)
 
 新增的`validateWddxFilter()`方法如下。
 
@@ -87,7 +81,7 @@ private void validateBlockedClass(String attributeType) throws InvalidWddxPacket
 
 我们尝试使用BeanSerializer对自定义的 Java Bean 进行序列化，调试过程中也可以看到对象类型与序列化器默认的映射关系。
 
-![图片.png](https://cdn.nlark.com/yuque/0/2023/png/26096065/1689820819933-a148afba-299c-45b8-9838-8e9275f1146b.png?x-oss-process=image%2Fformat%2Cwebp%2Fresize%2Cw_937%2Climit_0)
+![图片.png](\img\1689820819933-a148afba-299c-45b8-9838-8e9275f1146b.png)
 
 输出的序列化结果格式如下。
 
@@ -264,7 +258,7 @@ Content-Type: application/x-www-form-urlencoded
 argumentCollection=/* payload */
 ```
 
-![image.png](https://cdn.nlark.com/yuque/0/2023/png/26096065/1690528766276-6fc06c17-a31b-4db3-874e-dca7c37840ce.png?x-oss-process=image%2Fformat%2Cwebp%2Fresize%2Cw_937%2Climit_0)
+![image.png](\img\1690528766276-6fc06c17-a31b-4db3-874e-dca7c37840ce.png)
 
 
 
@@ -308,7 +302,7 @@ argumentCollection=/* payload */
 </wddxPacket>
 ```
 
-![图片.png](https://cdn.nlark.com/yuque/0/2023/png/26096065/1689734849994-02bded5e-6f02-4a39-8ae5-3f3c577a5c3d.png?x-oss-process=image%2Fformat%2Cwebp%2Fresize%2Cw_937%2Climit_0)
+![图片.png](\img\1689734849994-02bded5e-6f02-4a39-8ae5-3f3c577a5c3d.png)
 
 
 
